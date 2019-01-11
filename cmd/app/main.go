@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mchmarny/kueue/pkg/handlers"
-	"github.com/mchmarny/kueue/pkg/utils"
+	"github.com/mchmarny/myevents/pkg/handlers"
+	"github.com/mchmarny/myevents/pkg/utils"
 )
 
 
