@@ -13,7 +13,7 @@ func DefaultHandler(w http.ResponseWriter, r *http.Request) {
 	data := make(map[string]interface{})
 
 	uid := getCurrentUserID(r)
-	log.Printf("User ID: ", uid)
+	log.Printf("User ID: %s", uid)
 
 	// anon
 	if uid == "" {
