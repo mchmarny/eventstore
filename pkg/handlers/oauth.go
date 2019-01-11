@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/mchmarny/kueue/pkg/utils"
+	"github.com/mchmarny/myvents/pkg/utils"
 )
 
 const (
