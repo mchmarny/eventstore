@@ -36,8 +36,8 @@ docker:
 # SERVICE
 secrets:
 	kubectl create secret generic kueue \
-		--from-literal=OAUTH_CLIENT_ID=$(GAUTHER_OAUTH_CLIENT_ID) \
-		--from-literal=OAUTH_CLIENT_SECRET=$(GAUTHER_OAUTH_CLIENT_SECRET)
+		--from-literal=OAUTH_CLIENT_ID=$(KUEUE_OAUTH_CLIENT_ID) \
+		--from-literal=OAUTH_CLIENT_SECRET=$(KUEUE_OAUTH_CLIENT_SECRET)
 
 service:
 	kubectl apply -f deployments/service.yaml

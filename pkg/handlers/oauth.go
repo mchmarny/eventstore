@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/mchmarny/kueue/utils"
+	"github.com/mchmarny/kueue/pkg/utils"
 )
 
 const (
@@ -78,8 +78,8 @@ func OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// LogOutHandler resets cookie and redirects to home page
-func LogOutHandler(w http.ResponseWriter, r *http.Request) {
+// OAuthLogoutHandler resets cookie and redirects to home page
+func OAuthLogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	uid := getCurrentUserID(r)
 	log.Printf("User logging out: %s", uid)

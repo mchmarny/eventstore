@@ -1,28 +1,32 @@
-# build from latest go image
+# BUILD STAGE
 FROM golang:latest as build
 
+# copy
 WORKDIR /go/src/github.com/mchmarny/kueue/
 COPY . /src/
 
-# build gauther
+# dependancies
 WORKDIR /src/
 ENV GO111MODULE=on
 RUN go mod download
-RUN CGO_ENABLED=0 go build -o /kueue
+
+# build
+WORKDIR /src/cmd/app/
+RUN CGO_ENABLED=0 go build -v -o /kueue
 
 
 
-# run image
+# RUN STAGE
 FROM alpine as release
 RUN apk add --no-cache ca-certificates
 
 # app executable
 COPY --from=build /kueue /app/
 
-# static dependancies
+# copy static dependancies
 COPY --from=build /src/templates /app/templates/
 COPY --from=build /src/static /app/static/
 
-# start server
-WORKDIR /app
+# run
+WORKDIR /app/
 ENTRYPOINT ["./kueue"]

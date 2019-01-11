@@ -8,10 +8,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mchmarny/kueue/utils"
+	"github.com/mchmarny/kueue/pkg/utils"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
+
 
 var (
 	// Templates for handlers
@@ -19,6 +20,7 @@ var (
 	oauthConfig *oauth2.Config
 	longTimeAgo  = time.Duration(3650 * 24 * time.Hour)
 	cookieDuration = time.Duration(30 * 24 * time.Hour)
+	knownPublisherTokens = []string{}
 )
 
 // InitHandlers initializes OAuth package

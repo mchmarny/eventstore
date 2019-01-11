@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mchmarny/kueue/handlers"
-	"github.com/mchmarny/kueue/utils"
+	"github.com/mchmarny/kueue/pkg/handlers"
+	"github.com/mchmarny/kueue/pkg/utils"
 )
 
 
@@ -25,9 +25,13 @@ func main() {
 
 	// Handlers
 	mux.HandleFunc("/", handlers.DefaultHandler)
+
 	mux.HandleFunc("/auth/login", handlers.OAuthLoginHandler)
 	mux.HandleFunc("/auth/callback", handlers.OAuthCallbackHandler)
-	mux.HandleFunc("/auth/logout", handlers.LogOutHandler)
+	mux.HandleFunc("/auth/logout", handlers.OAuthLogoutHandler)
+
+	mux.HandleFunc("/v1/event", handlers.CloudEventHandler)
+
 	mux.HandleFunc("/_healthz", func(w http.ResponseWriter, _ *http.Request) {
 		fmt.Fprint(w, "ok")
 	})
