@@ -2,7 +2,7 @@
 FROM golang:latest as build
 
 # copy
-WORKDIR /go/src/github.com/mchmarny/myvents/
+WORKDIR /go/src/github.com/mchmarny/myevents/
 COPY . /src/
 
 # dependancies
@@ -12,7 +12,7 @@ RUN go mod download
 
 # build
 WORKDIR /src/cmd/app/
-RUN CGO_ENABLED=0 go build -v -o /myvents
+RUN CGO_ENABLED=0 go build -v -o /myevents
 
 
 
@@ -21,7 +21,7 @@ FROM alpine as release
 RUN apk add --no-cache ca-certificates
 
 # app executable
-COPY --from=build /myvents /app/
+COPY --from=build /myevents /app/
 
 # copy static dependancies
 COPY --from=build /src/templates /app/templates/
@@ -29,4 +29,4 @@ COPY --from=build /src/static /app/static/
 
 # run
 WORKDIR /app/
-ENTRYPOINT ["./myvents"]
+ENTRYPOINT ["./myevents"]

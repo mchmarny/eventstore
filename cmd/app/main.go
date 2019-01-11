@@ -9,7 +9,6 @@ import (
 	"github.com/mchmarny/myevents/pkg/utils"
 )
 
-
 func main() {
 
 	// init configs

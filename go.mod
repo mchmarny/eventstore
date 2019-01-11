@@ -1,4 +1,4 @@
-module github.com/mchmarny/myvents
+module github.com/mchmarny/myevents
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

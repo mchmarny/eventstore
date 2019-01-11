@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mchmarny/myvents/pkg/utils"
+	"github.com/mchmarny/myevents/pkg/utils"
 	"github.com/knative/pkg/cloudevents"
 )
 

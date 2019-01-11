@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mchmarny/myvents/pkg/utils"
+	"github.com/mchmarny/myevents/pkg/utils"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )

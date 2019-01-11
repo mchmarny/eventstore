@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"crypto/md5"
-	"encoding/hex"
+	"encoding/base64"
+	"fmt"
 	"strings"
 )
 
@@ -10,17 +10,36 @@ const (
 	idPrefix = "id-"
 )
 
-// MakeID normalizes input string and returns hashed value
-func MakeID(val string) string {
+// MakeID normalizes input string and returns encoded email
+func MakeID(email string) string {
 
 	// normalize
-	s := strings.TrimSpace(val)
+	s := strings.TrimSpace(email)
 	s = strings.ToLower(s)
 
-	// sign
-	hasher := md5.New()
-	hasher.Write([]byte(s))
+	// encode
+	encoded := base64.StdEncoding.EncodeToString([]byte(s))
 
-	return idPrefix + hex.EncodeToString(hasher.Sum(nil))
+	return idPrefix + encoded
+
+}
+
+// ParseEmail parses email from the encoded id
+func ParseEmail(id string) (email string, err error) {
+
+	// decode
+	decoded, err := base64.StdEncoding.DecodeString(id)
+	if err != nil {
+		return "", err
+	}
+
+	e := string(decoded)
+
+	// check format
+	if !strings.HasPrefix(e, idPrefix) {
+		return "", fmt.Errorf("Invalid ID: %s", e)
+	}
+
+	return strings.TrimPrefix(e, idPrefix), nil
 
 }

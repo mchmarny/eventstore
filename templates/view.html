@@ -1,0 +1,32 @@
+{{ define "view" }}
+
+{{ template "header" . }}
+
+
+<div id="middle-section">
+    {{if .email}}
+
+    <div class="email">
+        Signed in as: {{.email}}
+    </div>
+
+    <div class="logout">
+        <a href="/auth/logout" id="logout-button">Sign Out</a>
+    </div>
+
+    {{else}}
+
+    <!-- Middle (Anon) -->
+    <div class="login">
+        <a href="/auth/login">
+            <img src="static/img/sign-in.png" />
+        </a>
+    </div>
+
+
+    {{end}}
+</div>
+
+{{ template "footer" . }}
+
+{{ end }}

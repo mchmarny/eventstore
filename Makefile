@@ -9,23 +9,26 @@
 test:
 	go test ./... -v
 
+build:
+	go build ./... -v
+
 deps:
 	go mod tidy
 
 # BUILD
 image:
 	gcloud builds submit \
-		--project $(GCP_PROJECT) \
-		--tag gcr.io/$(GCP_PROJECT)/myvents:latest
+		--project ${GCP_PROJECT} \
+		--tag gcr.io/${GCP_PROJECT}/myevents:latest
 
 docker:
-	docker build -t myvents .
+	docker build -t myevents .
 
 # SERVICE
 secrets:
-	kubectl create secret generic myvents \
-		--from-literal=OAUTH_CLIENT_ID=$(MYEVENTS_OAUTH_CLIENT_ID) \
-		--from-literal=OAUTH_CLIENT_SECRET=$(MYEVENTS_OAUTH_CLIENT_SECRET)
+	kubectl create secret generic myevents \
+		--from-literal=OAUTH_CLIENT_ID=${MYEVENTS_OAUTH_CLIENT_ID} \
+		--from-literal=OAUTH_CLIENT_SECRET=${MYEVENTS_OAUTH_CLIENT_SECRET}
 
 service:
 	kubectl apply -f deployments/service.yaml

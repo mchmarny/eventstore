@@ -1,7 +1,7 @@
 apiVersion: serving.knative.dev/v1alpha1
 kind: Service
 metadata:
-  name: myvents
+  name: myevents
   namespace: default
 spec:
   runLatest:
@@ -9,7 +9,7 @@ spec:
       revisionTemplate:
         spec:
           container:
-            image: gcr.io/s9-demo/myvents:latest
+            image: gcr.io/s9-demo/myevents:latest
             imagePullPolicy: Always
             env:
             - name: RELEASE
@@ -17,14 +17,14 @@ spec:
             - name: OAUTH_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: myvents
+                  name: myevents
                   key: OAUTH_CLIENT_ID
             - name: OAUTH_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: myvents
+                  name: myevents
                   key: OAUTH_CLIENT_SECRET
             - name: GCP_PROJECT_ID
               value: "s9-demo"
             - name: EXTERNAL_URL
-              value: "https://myvents.default.knative.tech"
+              value: "https://myevents.default.knative.tech"
