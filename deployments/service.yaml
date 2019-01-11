@@ -1,0 +1,33 @@
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  name: kueue
+  namespace: default
+spec:
+  runLatest:
+    configuration:
+      revisionTemplate:
+        metadata:
+          annotations:
+            autoscaling.knative.dev/minScale: "1"
+        spec:
+          container:
+            image: gcr.io/s9-demo/kueue:latest
+            imagePullPolicy: Always
+            env:
+            - name: RELEASE
+              value: "v0.1.1"
+            - name: OAUTH_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: kueue
+                  key: OAUTH_CLIENT_ID
+            - name: OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kueue
+                  key: OAUTH_CLIENT_SECRET
+            - name: GCP_PROJECT_ID
+              value: "s9-demo"
+            - name: EXTERNAL_URL
+              value: "https://kueue.default.knative.tech"
