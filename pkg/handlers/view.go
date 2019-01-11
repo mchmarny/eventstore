@@ -7,8 +7,8 @@ import (
 	"github.com/mchmarny/myevents/pkg/utils"
 )
 
-// DefaultHandler handles index page
-func DefaultHandler(w http.ResponseWriter, r *http.Request) {
+// ViewHandler handles view page
+func ViewHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := make(map[string]interface{})
 

@@ -74,7 +74,11 @@ func OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &cookie)
 
 	// redirect on success
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	if err := templates.ExecuteTemplate(w, "view", dataMap); err != nil {
+		log.Printf("Error in view template: %s", err)
+		ErrorHandler(w, r, err, http.StatusInternalServerError)
+		return
+	}
 
 }
 

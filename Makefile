@@ -24,11 +24,25 @@ image:
 docker:
 	docker build -t myevents .
 
+# REDIS
+redis-secret:
+	kubectl create secret generic env-secrets --from-literal=REDIS_PASS=${REDIS_PASS}
+
+redis-disk:
+	gcloud compute --project=${GCP_PROJECT} disks create \
+		redis-disk --zone=${CLUSTER_ZONE} --type=pd-ssd --size=10GB
+
+redis:
+	kubectl apply -f deployments/redis-pd.yaml
+
 # SERVICE
 secrets:
 	kubectl create secret generic myevents \
 		--from-literal=OAUTH_CLIENT_ID=${MYEVENTS_OAUTH_CLIENT_ID} \
 		--from-literal=OAUTH_CLIENT_SECRET=${MYEVENTS_OAUTH_CLIENT_SECRET}
+
+secrets-clean:
+	kubectl delete secret myevents
 
 service:
 	kubectl apply -f deployments/service.yaml
