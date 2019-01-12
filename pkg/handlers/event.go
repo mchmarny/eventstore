@@ -6,8 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mchmarny/myevents/pkg/utils"
 	"github.com/cloudevents/sdk-go/v02"
+	"github.com/mchmarny/myevents/pkg/utils"
+	"github.com/mchmarny/myevents/pkg/queue"
 )
 
 const (
@@ -60,8 +61,24 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: push the event redis
 	log.Printf("Event: %v", event)
+
+
+	// content from the event
+	eventContent, err := json.Marshal(event)
+	if err != nil {
+		log.Printf("Error while marshaling event: %v", err)
+		http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
+			http.StatusBadRequest)
+		return
+	}
+
+	// publish event
+	if !queue.GetQueue().PublishBytes(eventContent) {
+		log.Println("error publishing event")
+		http.Error(w, "error publishing event", http.StatusBadRequest)
+		return
+	}
 
 	// response with the parsed payload data
 	w.WriteHeader(http.StatusAccepted)
