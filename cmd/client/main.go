@@ -3,19 +3,10 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
-	"bytes"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
-	"net/url"
-	"encoding/json"
-    "net/http"
 
-	"github.com/mchmarny/myevents/pkg/utils"
-	"github.com/cloudevents/sdk-go/v02"
+	"github.com/mchmarny/myevents/pkg/clients"
 )
 
 const (
@@ -24,21 +15,21 @@ const (
 )
 
 var (
-	canceling     bool
-	toke          string
-	eventSrc      string
-	targetURL     string
-	numOfMessages int
+	canceling bool
+	toke      string
+	eventSrc  string
+	targetURL string
+	message   string
+	sender    *clients.Sender
 )
-
 
 func main() {
 
 	// flags
 	flag.StringVar(&toke, "toke", os.Getenv("MYEVENTS_KNOWN_PUBLISHER_TOKEN"), "Known publisher token")
-	flag.StringVar(&eventSrc, "src", defaultPushEventingSource, "Source of data (Optional)")
 	flag.StringVar(&targetURL, "url", "", "Target service URL where events will be sent")
-	flag.IntVar(&numOfMessages, "messages", defaultNumberOfMessages, "Number of messages to sent [3]")
+	flag.StringVar(&eventSrc, "src", defaultPushEventingSource, "Source of data (Optional)")
+	flag.StringVar(&message, "message", "test message", "The content of the message [test message]")
 	flag.Parse()
 
 	if toke == "" {
@@ -49,81 +40,21 @@ func main() {
 		log.Fatal("`url` required ")
 	}
 
+	if message == "" {
+		log.Fatal("`message` required ")
+	}
+
 	// context
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx := context.Background()
 
-	go func() {
-		ch := make(chan os.Signal)
-		signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-		log.Println(<-ch)
-		canceling = true
-		cancel()
-		os.Exit(0)
-	}()
-
-	status := make(chan string)
-	done := make(chan int)
-
-	// start sending data
-	go sendMessages(ctx, status, done)
-
-F:
-	for {
-		select {
-		case <-ctx.Done():
-			break F
-		case s := <-status:
-			fmt.Printf("   status: %s \n", s)
-		case c := <-done:
-			fmt.Printf("sent %d messages \n", c)
-			break F
-		}
+	var err error
+	sender, err = clients.NewSender(targetURL)
+	if err != nil {
+		log.Fatalf("error while creating sender: %v", err)
 	}
 
-}
-
-
-
-func sendMessages(ctx context.Context, status chan<- string, done chan<- int) {
-
-	srcURL, _ := url.Parse("https://github.com/mchmarny/myevents/cmd/client")
-	sentCount := 0
-	for i := 0; i < numOfMessages; i++ {
-
-		now := time.Now().UTC()
-		event := &v02.Event{
-			SpecVersion: "0.2",
-			Type:        "tech.knative.event.write",
-			Source:      *srcURL,
-			ID:          utils.MakeUUID(),
-			Time: 		 &now,
-			ContentType: "text/plain",
-			Data: 		 fmt.Sprintf("message number %d", i),
-		}
-
-		data, _ := json.Marshal(event)
-		err := postContent(event.ID, data)
-		if err != nil {
-			status <- fmt.Sprintf("error msg[%d] %s", i, err.Error())
-		}
-		sentCount++
+	if err = sender.SendMessages(ctx, "tech.knative.event.write", message); err != nil {
+		log.Fatalf("error while sending: %v", err)
 	}
 
-	done <- sentCount
-	return
-
-}
-
-
-func postContent(id string, content []byte) error {
-	req, err := http.NewRequest("POST", targetURL, bytes.NewBuffer(content))
-    req.Header.Set("Content-Type", "application/json")
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        return err
-    }
-    defer resp.Body.Close()
-	log.Printf("post %s status: %s", id, resp.Status)
-	return nil
 }

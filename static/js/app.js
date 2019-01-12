@@ -3,9 +3,9 @@ window.onload = function () {
     console.log("Protocol: " + location.protocol);
     var wsURL = "ws://" + document.location.host + "/ws"
     // TODO: websocketUpgrade not set in Istio so errs on upgrade if WSS
-    // if (location.protocol == 'https:') {
-    //     wsURL = "wss://" + document.location.host + "/ws"
-    // }
+    if (location.protocol == 'https:') {
+        wsURL = "wss://" + document.location.host + "/ws"
+    }
     console.log("WS URL: " + wsURL);
 
     var msg = document.getElementById("eventmsg");
@@ -48,9 +48,6 @@ window.onload = function () {
             appendLog(item);
         };
 
-
-
-
-    }
+    } // if log
 
 };

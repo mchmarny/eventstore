@@ -77,6 +77,7 @@ event:
 client:
 	go build ./cmd/client/
 
-send-event:
-	./client --messages 10 \
+client-send:
+	./client \
+		--message "Test message from ${HOSTNAME}" \
 		--url "https://myevents.default.knative.tech/v1/event?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}"

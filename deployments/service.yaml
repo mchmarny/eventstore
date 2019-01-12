@@ -13,7 +13,7 @@ spec:
             imagePullPolicy: Always
             env:
             - name: RELEASE
-              value: "v0.1.10"
+              value: "v0.1.12"
             - name: OAUTH_CLIENT_ID
               valueFrom:
                 secretKeyRef:
