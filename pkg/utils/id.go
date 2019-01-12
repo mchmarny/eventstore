@@ -3,7 +3,10 @@ package utils
 import (
 	"encoding/base64"
 	"fmt"
+	"log"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -43,4 +46,13 @@ func ParseEmail(id string) (email string, err error) {
 
 	return string(decoded), nil
 
+}
+
+// MakeUUID makes UUID string
+func MakeUUID() string {
+	id, err := uuid.NewUUID()
+	if err != nil {
+		log.Fatalf("Error while getting id: %v\n", err)
+	}
+	return id.String()
 }

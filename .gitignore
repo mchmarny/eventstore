@@ -20,4 +20,5 @@
 
 # Bin
 bin
-myevents
+/app
+/client

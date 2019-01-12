@@ -9,10 +9,10 @@
 test:
 	go test ./... -v
 
-local:
-	cd cmd/app
-	go build -o ../../myevents
-	./myevents
+app:
+	rm ./app
+	go build ./cmd/app/
+	./app
 
 deps:
 	go mod tidy
@@ -59,7 +59,7 @@ event:
 	curl -H "Content-Type: application/json" \
 		 -X POST --data "{ \
 			\"specversion\": \"0.2\", \
-			\"type\": \"tech.knative.myevents.write\", \
+			\"type\": \"tech.knative.event.write\", \
 			\"source\": \"https://knative.tech/test\", \
 			\"id\": \"id-0000-1111-2222-3333-4444\", \
 			\"time\": \"2019-01-11T17:31:00Z\", \
@@ -68,3 +68,8 @@ event:
 		}" \
 		"https://myevents.default.knative.tech/v1/event?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}" \
 		| jq '.'
+
+client:
+	rm ./client
+	go build ./cmd/client/
+	./client --url "https://myevents.default.knative.tech/v1/event?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}"
