@@ -67,16 +67,8 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventContent, err := json.Marshal(eventData)
-	if err != nil {
-		log.Printf("Error while marshaling event: %v", err)
-		http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
-			http.StatusBadRequest)
-		return
-	}
-
 	// push event to the channel
-	eventChannel <- eventContent
+	eventChannel <- eventData
 
 	// response with the parsed payload data
 	w.WriteHeader(http.StatusAccepted)

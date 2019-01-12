@@ -1,5 +1,13 @@
 window.onload = function () {
 
+    console.log("Protocol: " + location.protocol);
+    var wsURL = "ws://" + document.location.host + "/ws"
+    // TODO: websocketUpgrade not set in Istio so errs on upgrade if WSS
+    // if (location.protocol == 'https:') {
+    //     wsURL = "wss://" + document.location.host + "/ws"
+    // }
+    console.log("WS URL: " + wsURL);
+
     var msg = document.getElementById("eventmsg");
     var log = document.getElementById("eventlog");
 
@@ -16,54 +24,33 @@ window.onload = function () {
     }
 
     if (log) {
-        if (window["WebSocket"]) {
 
-            console.log("Protocol: " + location.protocol);
-            var wsURL = "ws://" + document.location.host + "/ws"
-
-            // TODO: websocketUpgrade not set in Istio so errs on upgrade if WSS
-            // if (location.protocol == 'https:') {
-            //     wsURL = "wss://" + document.location.host + "/ws"
-            // }
-            console.log("WS URL: " + wsURL);
-            var conn = new WebSocket(wsURL);
-
-            conn.onopen = function () {
-                setMsg("<b>Opening Connection</b>");
-            };
-
-            /*
-                {
-                    "specversion" : "0.2",
-                    "type" : "com.github.pull.create",
-                    "source" : "https://github.com/cloudevents/spec/pull/123",
-                    "id" : "A234-1234-1234",
-                    "time" : "2018-04-05T17:31:00Z",
-                    "comexampleextension1" : "value",
-                    "comexampleextension2" : {
-                        "othervalue": 5
-                    },
-                    "contenttype" : "text/plain",
-                    "data" : "message"
-                }
-            */
-
-            conn.onmessage = function (evt) {
-                var eventObj = JSON.parse(evt.data);
-                console.log(eventObj);
-                var item = document.createElement("div");
-                item.className = "item";
-                item.innerHTML = JSON.stringify(eventObj, null, 4);
-                appendLog(item);
-            };
-
-            conn.onclose = function (evt) {
-                setMsg("<b>Connection closed</b>");
-            };
+        sock = new WebSocket(wsURL);
 
 
-        } else {
-            setMsg("<b class=error>Your browser does not support WebSockets</b>");
-        }
+        sock.onopen = function () {
+            console.log("connected to " + wsURL);
+            setMsg("<b>Opening Connection</b>");
+        };
+
+        sock.onclose = function (e) {
+            console.log("connection closed (" + e.code + ")");
+            setMsg("<b>Connection closed</b>");
+        };
+
+        sock.onmessage = function (e) {
+            console.log(e);
+            var eventObj = JSON.parse(e.data);
+            console.log(eventObj);
+            var item = document.createElement("div");
+            item.className = "item";
+            item.innerHTML = JSON.stringify(eventObj, null, 4);
+            appendLog(item);
+        };
+
+
+
+
     }
+
 };
