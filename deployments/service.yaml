@@ -13,7 +13,7 @@ spec:
             imagePullPolicy: Always
             env:
             - name: RELEASE
-              value: "v0.1.6"
+              value: "v0.1.9"
             - name: OAUTH_CLIENT_ID
               valueFrom:
                 secretKeyRef:
@@ -29,15 +29,6 @@ spec:
                 secretKeyRef:
                   name: myevents
                   key: KNOWN_PUBLISHER_TOKENS
-            - name: REDIS_HOST
-              value: "redis.default.svc.cluster.local:6379"
-            - name: REDIS_PASS
-              value: "myevents"
-            - name: REDIS_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: env-secrets
-                  key: REDIS_PASS
             - name: GCP_PROJECT_ID
               value: "s9-demo"
             - name: EXTERNAL_URL

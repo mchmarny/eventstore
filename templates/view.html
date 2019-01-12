@@ -3,24 +3,21 @@
 {{ template "header" . }}
 
 
-<div id="middle-section">
+<div id="middle-section-view">
     {{if .email}}
 
-    <div class="email">
+    <div class="loggedin">
         Signed in as: {{.email}}
+        |
+        <a href="/auth/logout">Sign Out</a>
     </div>
 
-    <div class="logout">
-        <a href="/auth/logout" id="logout-button">Sign Out</a>
+    <div id="eventmsg">
+
     </div>
 
-    {{else}}
+    <div id="eventlog">
 
-    <!-- Middle (Anon) -->
-    <div class="login">
-        <a href="/auth/login">
-            <img src="static/img/sign-in.png" />
-        </a>
     </div>
 
 

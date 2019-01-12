@@ -5,14 +5,19 @@
 #  MYEVENTS_OAUTH_CLIENT_SECRET - Google OAuth2 Client Secret
 
 
+.PHONY: app client
+
 # DEV
 test:
 	go test ./... -v
 
+setup:
+	export OAUTH_CLIENT_ID=$MYEVENTS_OAUTH_CLIENT_ID
+	export OAUTH_CLIENT_SECRET=$MYEVENTS_OAUTH_CLIENT_SECRET
+	export KNOWN_PUBLISHER_TOKENS=$MYEVENTS_KNOWN_PUBLISHER_TOKEN
+
 app:
-	rm ./app
 	go build ./cmd/app/
-	./app
 
 deps:
 	go mod tidy
@@ -66,10 +71,11 @@ event:
 			\"contenttype\": \"text/plain\", \
 			\"data\": \"My message content\" \
 		}" \
-		"https://myevents.default.knative.tech/v1/event?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}" \
+		"http://localhost:8080/v1/event?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}" \
 		| jq '.'
 
 client:
-	rm ./client
 	go build ./cmd/client/
+
+remote-event:
 	./client --url "https://myevents.default.knative.tech/v1/event?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}"

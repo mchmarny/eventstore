@@ -25,6 +25,7 @@ func main() {
 	// UI Handlers
 	mux.HandleFunc("/", handlers.ViewHandler)
 	mux.HandleFunc("/view", handlers.ViewHandler)
+	mux.HandleFunc("/ws", handlers.WSHandler)
 
 	// Auth Handlers
 	mux.HandleFunc("/auth/login", handlers.OAuthLoginHandler)

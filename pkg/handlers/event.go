@@ -8,7 +8,6 @@ import (
 
 	"github.com/cloudevents/sdk-go/v02"
 	"github.com/mchmarny/myevents/pkg/utils"
-	"github.com/mchmarny/myevents/pkg/queue"
 )
 
 const (
@@ -62,10 +61,13 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("Event: %v", event)
+	eventData, ok := event.Get("data")
+	if !ok {
+		http.Error(w, "Error, not a cloud event data", http.StatusBadRequest)
+		return
+	}
 
-
-	// content from the event
-	eventContent, err := json.Marshal(event)
+	eventContent, err := json.Marshal(eventData)
 	if err != nil {
 		log.Printf("Error while marshaling event: %v", err)
 		http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
@@ -73,12 +75,8 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// publish event
-	if !queue.GetQueue().PublishBytes(eventContent) {
-		log.Println("error publishing event")
-		http.Error(w, "error publishing event", http.StatusBadRequest)
-		return
-	}
+	// push event to the channel
+	eventChannel <- eventContent
 
 	// response with the parsed payload data
 	w.WriteHeader(http.StatusAccepted)
