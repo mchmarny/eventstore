@@ -77,5 +77,6 @@ event:
 client:
 	go build ./cmd/client/
 
-remote-event:
-	./client --url "https://myevents.default.knative.tech/v1/event?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}"
+send-event:
+	./client --messages 10 \
+		--url "https://myevents.default.knative.tech/v1/event?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}"
