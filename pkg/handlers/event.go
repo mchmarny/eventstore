@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/mchmarny/myevents/pkg/utils"
-	"github.com/knative/pkg/cloudevents"
+	"github.com/cloudevents/sdk-go/v02"
 )
 
 const (
@@ -51,8 +51,8 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var eventData string
-	eventCtx, err := cloudevents.FromRequest(eventData, r)
+	converter := v02.NewDefaultHTTPMarshaller()
+	event, err := converter.FromRequest(r)
 	if err != nil {
 		log.Printf("error parsing cloudevent: %v", err)
 		http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
@@ -60,12 +60,11 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: push the event to UI display channel
-	log.Printf("Event Context: %+v", eventCtx)
-	log.Printf("Event Data: %s", eventData)
+	// TODO: push the event redis
+	log.Printf("Event: %v", event)
 
 	// response with the parsed payload data
 	w.WriteHeader(http.StatusAccepted)
-	json.NewEncoder(w).Encode(eventData)
+	json.NewEncoder(w).Encode(event)
 
 }

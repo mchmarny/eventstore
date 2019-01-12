@@ -9,8 +9,10 @@
 test:
 	go test ./... -v
 
-build:
-	go build ./... -v
+local:
+	cd cmd/app
+	go build -o ../../myevents
+	./myevents
 
 deps:
 	go mod tidy
@@ -39,7 +41,8 @@ redis:
 secrets:
 	kubectl create secret generic myevents \
 		--from-literal=OAUTH_CLIENT_ID=${MYEVENTS_OAUTH_CLIENT_ID} \
-		--from-literal=OAUTH_CLIENT_SECRET=${MYEVENTS_OAUTH_CLIENT_SECRET}
+		--from-literal=OAUTH_CLIENT_SECRET=${MYEVENTS_OAUTH_CLIENT_SECRET} \
+		--from-literal=KNOWN_PUBLISHER_TOKENS=${KNOWN_PUBLISHER_TOKENS}
 
 secrets-clean:
 	kubectl delete secret myevents
@@ -49,3 +52,19 @@ service:
 
 service-clean:
 	kubectl delete -f deployments/service.yaml
+
+# DEMO
+
+event:
+	curl -H "Content-Type: application/json" \
+		 -X POST --data "{ \
+			\"specversion\": \"0.2\", \
+			\"type\": \"tech.knative.myevents.write\", \
+			\"source\": \"https://knative.tech/test\", \
+			\"id\": \"id-0000-1111-2222-3333-4444\", \
+			\"time\": \"2019-01-11T17:31:00Z\", \
+			\"contenttype\": \"text/plain\", \
+			\"data\": \"My message content\" \
+		}" \
+		"https://myevents.default.knative.tech/v1/event?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}" \
+		| jq '.'

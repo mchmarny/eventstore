@@ -27,19 +27,20 @@ func MakeID(email string) string {
 // ParseEmail parses email from the encoded id
 func ParseEmail(id string) (email string, err error) {
 
+	// check format
+	if !strings.HasPrefix(id, idPrefix) {
+		return "", fmt.Errorf("Invalid ID format: %s", id)
+	}
+
+	// trim
+	id2 := strings.TrimPrefix(id, idPrefix)
+
 	// decode
-	decoded, err := base64.StdEncoding.DecodeString(id)
+	decoded, err := base64.StdEncoding.DecodeString(id2)
 	if err != nil {
 		return "", err
 	}
 
-	e := string(decoded)
-
-	// check format
-	if !strings.HasPrefix(e, idPrefix) {
-		return "", fmt.Errorf("Invalid ID: %s", e)
-	}
-
-	return strings.TrimPrefix(e, idPrefix), nil
+	return string(decoded), nil
 
 }

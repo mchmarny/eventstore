@@ -13,7 +13,7 @@ spec:
             imagePullPolicy: Always
             env:
             - name: RELEASE
-              value: "v0.1.1"
+              value: "v0.1.5"
             - name: OAUTH_CLIENT_ID
               valueFrom:
                 secretKeyRef:
@@ -24,6 +24,11 @@ spec:
                 secretKeyRef:
                   name: myevents
                   key: OAUTH_CLIENT_SECRET
+            - name: KNOWN_PUBLISHER_TOKENS
+              valueFrom:
+                secretKeyRef:
+                  name: myevents
+                  key: KNOWN_PUBLISHER_TOKENS
             - name: GCP_PROJECT_ID
               value: "s9-demo"
             - name: EXTERNAL_URL

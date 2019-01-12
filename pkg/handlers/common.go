@@ -49,6 +49,10 @@ func InitHandlers() {
 		Endpoint:     google.Endpoint,
 	}
 
+	// know publishers
+	tokens := utils.MustGetEnv("KNOWN_PUBLISHER_TOKENS", "")
+	knownPublisherTokens = strings.Split(tokens, ",")
+
 }
 
 func getCurrentUserID(r *http.Request) string {

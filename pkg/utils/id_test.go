@@ -13,11 +13,14 @@ func TestID(t *testing.T) {
 	id1 := MakeID(testEmail)
 	log.Printf("ID1: %s", id1)
 
-	id2 := MakeID(strings.ToLower(testEmail))
+	testEmail2 := strings.ToLower(testEmail)
+
+	id2 := MakeID(testEmail2)
 	log.Printf("ID2: %s", id2)
 
 	if id1 != id2 {
 		t.Errorf("Failed to generate case insensitive ID")
+		return
 	}
 
 	email, err := ParseEmail(id2)
@@ -25,7 +28,9 @@ func TestID(t *testing.T) {
 		t.Errorf("Error parsing email: %v", err)
 	}
 
-	if email != id2 {
+	log.Printf("Email: %s", email)
+
+	if email != testEmail2 {
 		t.Errorf("Failed to generate case insensitive ID")
 	}
 
