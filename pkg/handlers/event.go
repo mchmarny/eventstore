@@ -34,6 +34,8 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if !allowLocalPublishers {
+
 	// check for presense of publisher token
 	srcToken := r.URL.Query().Get(knownPublisherTokenName)
 	if srcToken == "" {
@@ -50,6 +52,8 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 			http.StatusBadRequest)
 		return
 	}
+
+	//}
 
 	converter := v02.NewDefaultHTTPMarshaller()
 	event, err := converter.FromRequest(r)

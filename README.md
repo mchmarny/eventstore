@@ -1,24 +1,27 @@
 # myevents
 
-Knative Cloud Events Gateway and Viewer
+Knative Cloud Events Gateway and Viewer. Allows for inspection of Knative events.
 
 ## Demo
 
 https://myevents.default.knative.tech/
 
-## Setup
+## Prerequisites
 
-Setup assumes you already have `gcloud` installed. If not, see [Installing Google Cloud SDK](https://cloud.google.com/sdk/install)
+ * `gcloud` configured. If not, see [Installing Google Cloud SDK](https://cloud.google.com/sdk/install)
+ * [Knative](https://github.com/knative/docs/blob/master/install) installed
+    * Configured [outbound network access (https://github.com/knative/docs/blob/master/serving/outbound-network-access.md)
+    * Installed [Knative Eventing](https://github.com/knative/docs/tree/master/eventing) using the `release.yaml` file
 
 
 > This readme is still a bit of work in progress so if you are finding something missing do take a look at the [Makefile](https://github.com/mchmarny/myevents/blob/master/Makefile)
 
 ### Knative URL
 
-To avoid the kind of chicken and an egg situation we are going to first define the `URL` that your application will have when you publish it on Knative. Knative uses convention to build serving URL by combining the deployment name (e.g. `myevents`), namespace name (e.g. `default`), and the pre-configured domain name (e.g. `knative.tech`). The resulting URL, assuming you already configured SSL, should look something like this:
+To avoid the kind of chicken and an egg situation we are going to first define the `URL` that your application will have when you publish it on Knative. Knative uses convention to build serving URL by combining the deployment name (e.g. `gauther`), namespace name (e.g. `default`), and the pre-configured domain name (e.g. `knative.tech`). The resulting URL, assuming you already configured SSL, should look something like this:
 
 ```shell
-https://myevents.default.knative.tech
+https://gauther.default.knative.tech
 ```
 
 ### Google OAuth Credentials
@@ -28,16 +31,15 @@ In your Google Cloud Platform (GCP) project console navigate to the Credentials 
 * Click “Create credentials” and select “OAuth client ID”
 * Select "Web application"
 * Add authorized redirect URL at the bottom using the fully qualified domain we defined above and appending the `callback` path:
- * `https://myevents.default.knative.tech/auth/callback`
+ * `https://gauther.default.knative.tech/auth/callback`
 * Click create and copy both `client id` and `client secret`
 * CLICK `OK` to save
 
-For ease of use, export the copied client `id` as `MYEVENTS_OAUTH_CLIENT_ID` and `secret` as `MYEVENTS_OAUTH_CLIENT_SECRET` in your environment variables (e.g. ~/.bashrc or ~/.profile)
+For ease of use, export the copied client `id` as `GAUTHER_OAUTH_CLIENT_ID` and `secret` as `GAUTHER_OAUTH_CLIENT_SECRET` in your environment variables (e.g. ~/.bashrc or ~/.profile)
 
 > You will also have to verify the domain ownership. More on that [here](https://support.google.com/cloud/answer/6158849?hl=en#authorized-domains)
 
-
-### App Deployment
+## Deployment
 
 > TODO: Provide public image deployment instructions
 
@@ -47,7 +49,7 @@ To deploy the `myevents` are are going to:
 * [Configure Knative](#configure-knative)
 * [Deploy Service](#deploy-service)
 
-#### Build the image
+### Build the image
 
 Quickest way to build your service image is through [GCP Build](https://cloud.google.com/cloud-build/). Just submit the build request from within the `myevents` directory:
 
@@ -66,17 +68,18 @@ ID           CREATE_TIME          DURATION  SOURCE                              
 
 Copy the image URI from `IMAGE` column (e.g. `gcr.io/PROJECT/myevents`).
 
-#### Configure Knative
+### Configure Knative
 
-Before we can deploy that service to Knative, we just need to create Kubernetes secrets and update the `deploy/server.yaml` file
+Before we can deploy that service to Knative, we just need to create Kubernetes secrets and update the `deployments/service.yaml` file
 
 ```shell
 kubectl create secret generic myevents \
-    --from-literal=OAUTH_CLIENT_ID=$MYEVENTS_OAUTH_CLIENT_ID \
-    --from-literal=OAUTH_CLIENT_SECRET=$MYEVENTS_OAUTH_CLIENT_SECRET
+		--from-literal=OAUTH_CLIENT_ID=$MYEVENTS_OAUTH_CLIENT_ID \
+		--from-literal=OAUTH_CLIENT_SECRET=$MYEVENTS_OAUTH_CLIENT_SECRET \
+		--from-literal=KNOWN_PUBLISHER_TOKENS=$KNOWN_PUBLISHER_TOKENS
 ```
 
-Now in the `deploy/server.yaml` file update the `GCP_PROJECT_ID`
+Now in the `deployments/service.yaml` file update the `GCP_PROJECT_ID`
 
 ```yaml
     - name: GCP_PROJECT_ID
@@ -90,9 +93,9 @@ And the external URL of your which we defined at the begining of this readme in 
       value: "https://myevents.default.DOMAIN.COM"
 ```
 
-#### Deploy Service
+### Deploy Service
 
-Once done updating our service manifest (`deploy/server.yaml`) you are ready to deploy it.
+Once done updating our service manifest (`deployments/service.yaml`) you are ready to deploy it.
 
 ```shell
 kubectl apply -f deployments/service.yaml
@@ -108,7 +111,7 @@ To check if the service was deployed successfully you can check the status using
 
 ```shell
 NAME                                          READY     STATUS    RESTARTS   AGE
-myevents-00002-deployment-5645f48b4d-mb24j     3/3       Running   0          4h
+myevents-0000n-deployment-5645f48b4d-mb24j     3/3       Running   0          4h
 ```
 
 You should be able to test the app now in browser using the `URL` you defined above.

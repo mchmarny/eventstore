@@ -21,6 +21,7 @@ var (
 	longTimeAgo  = time.Duration(3650 * 24 * time.Hour)
 	cookieDuration = time.Duration(30 * 24 * time.Hour)
 	knownPublisherTokens = []string{}
+	allowLocalPublishers = true
 )
 
 // InitHandlers initializes OAuth package
@@ -52,6 +53,7 @@ func InitHandlers() {
 	// know publishers
 	tokens := utils.MustGetEnv("KNOWN_PUBLISHER_TOKENS", "")
 	knownPublisherTokens = strings.Split(tokens, ",")
+	allowLocalPublishers = utils.EnvVarAsBool("ALLOW_LOCAL_PUBLISH", true)
 
 }
 
