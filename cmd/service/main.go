@@ -22,7 +22,7 @@ func main() {
 		  http.FileServer(http.Dir("static"))))
 
 	// UI Handlers
-	http.HandleFunc("/", handlers.ViewHandler)
+	http.HandleFunc("/", handlers.RootHandler)
 	http.HandleFunc("/view", handlers.ViewHandler)
 	http.Handle("/ws", websocket.Handler(handlers.WSHandler))
 

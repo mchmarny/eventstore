@@ -1,3 +1,4 @@
+
 # Assumes following env vars set
 #  GCP_PROJECT - ID of your project
 #  CLUSTER_ZONE - GCP Zone, ideally same as your Knative k8s cluster
@@ -5,7 +6,7 @@
 #  MYEVENTS_OAUTH_CLIENT_SECRET - Google OAuth2 Client Secret
 
 
-.PHONY: app client
+.PHONY: app client service
 
 # DEV
 test:
@@ -16,13 +17,17 @@ setup:
 	export OAUTH_CLIENT_SECRET=$MYEVENTS_OAUTH_CLIENT_SECRET
 	export KNOWN_PUBLISHER_TOKENS=$MYEVENTS_KNOWN_PUBLISHER_TOKEN
 
-app:
-	go build ./cmd/app/
+service:
+	go build ./cmd/service/
+
+run:
+	./service
 
 deps:
 	go mod tidy
 
 # BUILD
+
 image:
 	gcloud builds submit \
 		--project ${GCP_PROJECT} \
@@ -31,18 +36,8 @@ image:
 docker:
 	docker build -t myevents .
 
-# REDIS
-redis-secret:
-	kubectl create secret generic env-secrets --from-literal=REDIS_PASS=${REDIS_PASS}
+# DEPLOYMENT
 
-redis-disk:
-	gcloud compute --project=${GCP_PROJECT} disks create \
-		redis-disk --zone=${CLUSTER_ZONE} --type=pd-ssd --size=10GB
-
-redis:
-	kubectl apply -f deployments/redis-pd.yaml
-
-# SERVICE
 secrets:
 	kubectl create secret generic myevents \
 		--from-literal=OAUTH_CLIENT_ID=${MYEVENTS_OAUTH_CLIENT_ID} \
@@ -52,10 +47,10 @@ secrets:
 secrets-clean:
 	kubectl delete secret myevents
 
-service:
+deployment:
 	kubectl apply -f deployments/service.yaml
 
-service-clean:
+nodeployment:
 	kubectl delete -f deployments/service.yaml
 
 # DEMO
@@ -71,7 +66,7 @@ event:
 			\"contenttype\": \"text/plain\", \
 			\"data\": \"My message content\" \
 		}" \
-		"http://localhost:8080/v1/event?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}" \
+		"http://localhost:8080/?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}" \
 		| jq '.'
 
 client:
@@ -80,4 +75,4 @@ client:
 client-send:
 	./client \
 		--message "Test message from ${HOSTNAME}" \
-		--url "https://myevents.default.knative.tech/v1/event?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}"
+		--url "https://myevents.default.knative.tech/?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}"

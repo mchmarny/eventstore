@@ -11,7 +11,7 @@ ENV GO111MODULE=on
 RUN go mod download
 
 # build
-WORKDIR /src/cmd/app/
+WORKDIR /src/cmd/service/
 RUN CGO_ENABLED=0 go build -v -o /myevents
 
 

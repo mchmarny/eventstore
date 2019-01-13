@@ -17,9 +17,7 @@ func ViewHandler(w http.ResponseWriter, r *http.Request) {
 
 	// anon
 	if uid == "" {
-		if err := templates.ExecuteTemplate(w, "home", data); err != nil {
-			log.Printf("Error in home template: %s", err)
-		}
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
