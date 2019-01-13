@@ -4,6 +4,7 @@
 #  CLUSTER_ZONE - GCP Zone, ideally same as your Knative k8s cluster
 #  MYEVENTS_OAUTH_CLIENT_ID - Google OAuth2 Client ID
 #  MYEVENTS_OAUTH_CLIENT_SECRET - Google OAuth2 Client Secret
+#  MYEVENTS_KNOWN_PUBLISHER_TOKEN - One of the known publisher tokens
 
 
 .PHONY: app client service
