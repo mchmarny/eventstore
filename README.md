@@ -1,10 +1,7 @@
 # myevents
 
-Knative Cloud Events Gateway and Viewer. Allows for inspection of Knative events.
+Knative Cloud Event (v0.2) Collector with Cloud Firestore persistence
 
-## Demo
-
-https://myevents.default.knative.tech/
 
 ## Prerequisites
 
@@ -16,38 +13,17 @@ https://myevents.default.knative.tech/
 
 > This readme is still a bit of work in progress so if you are finding something missing do take a look at the [Makefile](https://github.com/mchmarny/myevents/blob/master/Makefile)
 
-### Knative URL
-
-To avoid the kind of chicken and an egg situation we are going to first define the `URL` that your application will have when you publish it on Knative. Knative uses convention to build serving URL by combining the deployment name (e.g. `gauther`), namespace name (e.g. `default`), and the pre-configured domain name (e.g. `knative.tech`). The resulting URL, assuming you already configured SSL, should look something like this:
-
-```shell
-https://gauther.default.knative.tech
-```
-
-### Google OAuth Credentials
-
-In your Google Cloud Platform (GCP) project console navigate to the Credentials section. You can use the search bar, just type `Credentials` and select the option with "API & Services". To create new OAuth credentials:
-
-* Click “Create credentials” and select “OAuth client ID”
-* Select "Web application"
-* Add authorized redirect URL at the bottom using the fully qualified domain we defined above and appending the `callback` path:
- * `https://gauther.default.knative.tech/auth/callback`
-* Click create and copy both `client id` and `client secret`
-* CLICK `OK` to save
-
-For ease of use, export the copied client `id` as `GAUTHER_OAUTH_CLIENT_ID` and `secret` as `GAUTHER_OAUTH_CLIENT_SECRET` in your environment variables (e.g. ~/.bashrc or ~/.profile)
-
-> You will also have to verify the domain ownership. More on that [here](https://support.google.com/cloud/answer/6158849?hl=en#authorized-domains)
-
 ## Deployment
-
-> TODO: Provide public image deployment instructions
 
 To deploy the `myevents` are are going to:
 
-* [Build the image](#build-the-image)
-* [Configure Knative](#configure-knative)
-* [Deploy Service](#deploy-service)
+- [myevents](#myevents)
+  - [Prerequisites](#prerequisites)
+  - [Deployment](#deployment)
+    - [Build the image](#build-the-image)
+    - [Configure Knative](#configure-knative)
+    - [Deploy Service](#deploy-service)
+  - [Disclaimer](#disclaimer)
 
 ### Build the image
 
@@ -70,28 +46,13 @@ Copy the image URI from `IMAGE` column (e.g. `gcr.io/PROJECT/myevents`).
 
 ### Configure Knative
 
-Before we can deploy that service to Knative, we just need to create Kubernetes secrets and update the `deployments/service.yaml` file
-
-```shell
-kubectl create secret generic myevents \
-		--from-literal=OAUTH_CLIENT_ID=$MYEVENTS_OAUTH_CLIENT_ID \
-		--from-literal=OAUTH_CLIENT_SECRET=$MYEVENTS_OAUTH_CLIENT_SECRET \
-		--from-literal=KNOWN_PUBLISHER_TOKENS=$KNOWN_PUBLISHER_TOKENS
-```
-
-Now in the `deployments/service.yaml` file update the `GCP_PROJECT_ID`
+Before we can deploy that service to Knative, we just need to update the `GCP_PROJECT_ID` in Now in the `deployments/service.yaml` file.
 
 ```yaml
     - name: GCP_PROJECT_ID
       value: "enter your project ID here"
 ```
 
-And the external URL of your which we defined at the begining of this readme in [###knative-url] section.
-
-```yaml
-    - name: EXTERNAL_URL
-      value: "https://myevents.default.DOMAIN.COM"
-```
 
 ### Deploy Service
 
@@ -114,7 +75,9 @@ NAME                                          READY     STATUS    RESTARTS   AGE
 myevents-0000n-deployment-5645f48b4d-mb24j     3/3       Running   0          4h
 ```
 
-You should be able to test the app now in browser using the `URL` you defined above.
+> Note, the `myevents` service is cluster.local only and does not expose externally accessible endpoint. Other service can publish to it using its service name `events`.
+
+To make the service externally accessible remove the `serving.knative.dev/visibility: cluster-local` label from `deployments/service.yaml` service manifest
 
 ## Disclaimer
 
