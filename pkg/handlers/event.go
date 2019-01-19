@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/cloudevents/sdk-go/v02"
-	"github.com/mchmarny/myevents/pkg/utils"
+	"github.com/mchmarny/myevents/pkg/stores"
 )
 
 const (
@@ -34,27 +34,6 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// if !allowLocalPublishers {
-
-	// check for presense of publisher token
-	srcToken := r.URL.Query().Get(knownPublisherTokenName)
-	if srcToken == "" {
-		log.Printf("nil token: %s", srcToken)
-		http.Error(w, fmt.Sprintf("Invalid request (%s missing)", knownPublisherTokenName),
-			http.StatusBadRequest)
-		return
-	}
-
-	// check validity of poster token
-	if !utils.Contains(knownPublisherTokens, srcToken) {
-		log.Printf("invalid token: %s", srcToken)
-		http.Error(w, fmt.Sprintf("Invalid publisher token value (%s)", knownPublisherTokenName),
-			http.StatusBadRequest)
-		return
-	}
-
-	//}
-
 	converter := v02.NewDefaultHTTPMarshaller()
 	event, err := converter.FromRequest(r)
 	if err != nil {
@@ -63,16 +42,22 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 			http.StatusBadRequest)
 		return
 	}
+	log.Printf("Raw Event: %v", event)
 
-	log.Printf("Event: %v", event)
+
 	eventData, ok := event.Get("data")
 	if !ok {
 		http.Error(w, "Error, not a cloud event data", http.StatusBadRequest)
 		return
 	}
+	log.Printf("Event Data: %v", eventData)
 
-	// push event to the channel
-	eventChannel <- eventData
+	saveErr := stores.SaveEvent(r.Context(), eventData)
+	if saveErr != nil {
+		log.Printf("error on event save: %v", saveErr)
+		http.Error(w, "Error on event save", http.StatusBadRequest)
+		return
+	}
 
 	// response with the parsed payload data
 	w.WriteHeader(http.StatusAccepted)

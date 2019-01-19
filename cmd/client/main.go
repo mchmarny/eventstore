@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"log"
-	"os"
 
 	"github.com/mchmarny/myevents/pkg/clients"
 )
@@ -26,15 +25,10 @@ var (
 func main() {
 
 	// flags
-	flag.StringVar(&toke, "toke", os.Getenv("MYEVENTS_KNOWN_PUBLISHER_TOKEN"), "Known publisher token")
 	flag.StringVar(&targetURL, "url", "", "Target service URL where events will be sent")
 	flag.StringVar(&eventSrc, "src", defaultPushEventingSource, "Source of data (Optional)")
 	flag.StringVar(&message, "message", "test message", "The content of the message [test message]")
 	flag.Parse()
-
-	if toke == "" {
-		log.Fatal("`token` required (or define MYEVENTS_KNOWN_PUBLISHER_TOKEN env var)")
-	}
 
 	if targetURL == "" {
 		log.Fatal("`url` required ")

@@ -3,8 +3,6 @@ package utils
 import (
 	"log"
 	"os"
-	"strconv"
-	"strings"
 )
 
 var (
@@ -24,11 +22,4 @@ func MustGetEnv(key, fallbackValue string) string {
 	}
 
 	return fallbackValue
-}
-
-// EnvVarAsBool returns true if set to one of the trueStrings values
-// false else. EnvVarAsBool is case insensitive
-func EnvVarAsBool(key string, fallbackValue bool) bool {
-	val := strings.ToLower(MustGetEnv(key, strconv.FormatBool(fallbackValue)))
-	return Contains(trueStrings, val)
 }

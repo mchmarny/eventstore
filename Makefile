@@ -2,9 +2,6 @@
 # Assumes following env vars set
 #  GCP_PROJECT - ID of your project
 #  CLUSTER_ZONE - GCP Zone, ideally same as your Knative k8s cluster
-#  MYEVENTS_OAUTH_CLIENT_ID - Google OAuth2 Client ID
-#  MYEVENTS_OAUTH_CLIENT_SECRET - Google OAuth2 Client Secret
-#  MYEVENTS_KNOWN_PUBLISHER_TOKEN - One of the known publisher tokens
 
 
 .PHONY: app client service
@@ -12,11 +9,6 @@
 # DEV
 test:
 	go test ./... -v
-
-setup:
-	export OAUTH_CLIENT_ID=$MYEVENTS_OAUTH_CLIENT_ID
-	export OAUTH_CLIENT_SECRET=$MYEVENTS_OAUTH_CLIENT_SECRET
-	export KNOWN_PUBLISHER_TOKENS=$MYEVENTS_KNOWN_PUBLISHER_TOKEN
 
 service:
 	go build ./cmd/service/
@@ -39,15 +31,6 @@ docker:
 
 # DEPLOYMENT
 
-secrets:
-	kubectl create secret generic myevents \
-		--from-literal=OAUTH_CLIENT_ID=${MYEVENTS_OAUTH_CLIENT_ID} \
-		--from-literal=OAUTH_CLIENT_SECRET=${MYEVENTS_OAUTH_CLIENT_SECRET} \
-		--from-literal=KNOWN_PUBLISHER_TOKENS=${KNOWN_PUBLISHER_TOKENS}
-
-secrets-clean:
-	kubectl delete secret myevents
-
 deployment:
 	kubectl apply -f deployments/service.yaml
 
@@ -67,13 +50,18 @@ event:
 			\"contenttype\": \"text/plain\", \
 			\"data\": \"My message content\" \
 		}" \
-		"http://localhost:8080/?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}" \
+		"http://localhost:8080/" \
 		| jq '.'
 
 client:
 	go build ./cmd/client/
 
-client-send:
+client-event:
 	./client \
 		--message "Test message from ${HOSTNAME}" \
-		--url "https://myevents.default.knative.tech/?token=${MYEVENTS_KNOWN_PUBLISHER_TOKEN}"
+		--url "https://events.demo.knative.tech/"
+
+client-event-local:
+	./client \
+		--message "Test message from ${HOSTNAME}" \
+		--url "http://localhost:8080/"

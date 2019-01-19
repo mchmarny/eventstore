@@ -23,10 +23,6 @@ RUN apk add --no-cache ca-certificates
 # app executable
 COPY --from=build /myevents /app/
 
-# copy static dependancies
-COPY --from=build /src/templates /app/templates/
-COPY --from=build /src/static /app/static/
-
 # run
 WORKDIR /app/
 ENTRYPOINT ["./myevents"]
