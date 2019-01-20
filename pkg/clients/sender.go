@@ -2,9 +2,10 @@ package clients
 
 import (
 	"bytes"
-	"log"
+	"fmt"
 	"time"
 	"net/url"
+ 	"io/ioutil"
 	"encoding/json"
     "net/http"
 	"context"
@@ -64,7 +65,7 @@ func (s *Sender) SendMessages(ctx context.Context, eventType, text string) error
 func (s *Sender) SendEvent(ctx context.Context, event *v02.Event) error {
 	data, err := json.Marshal(event)
 	if err != nil {
-		log.Printf("Error while marshaling event: %v", err)
+		fmt.Printf("Error while marshaling event: %v", err)
 	}
 	return s.SendContent(ctx, data)
 }
@@ -94,8 +95,21 @@ func (s *Sender) SendContent(ctx context.Context, content []byte) error {
 	}
 
 	// cleanup
-    defer resp.Body.Close()
-	log.Printf("Send status: %s", resp.Status)
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusAccepted &&
+	   resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("Response Status: %s", resp.Status)
+	   }
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Error parsing body: %v", err)
+		return err
+	}
+
+	fmt.Println(string(bodyBytes))
+
 	return nil
 }
 

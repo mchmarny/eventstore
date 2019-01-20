@@ -2,8 +2,6 @@ apiVersion: serving.knative.dev/v1alpha1
 kind: Service
 metadata:
   name: events
-  labels:
-    serving.knative.dev/visibility: cluster-local
 spec:
   runLatest:
     configuration:
@@ -17,6 +15,6 @@ spec:
             imagePullPolicy: Always
             env:
             - name: RELEASE
-              value: "v0.2.3"
+              value: "v0.2.4"
             - name: GCP_PROJECT_ID
               value: "s9-demo"

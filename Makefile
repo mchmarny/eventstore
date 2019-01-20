@@ -57,11 +57,7 @@ client:
 	go build ./cmd/client/
 
 client-event:
-	./client \
-		--message "Test message from ${HOSTNAME}" \
-		--url "https://events.demo.knative.tech/"
+	./client --message "Test message" --url "http://events.default.knative.tech/" | jq '.'
 
 client-event-local:
-	./client \
-		--message "Test message from ${HOSTNAME}" \
-		--url "http://localhost:8080/"
+	./client --message "Test message" --url "http://localhost:8080/" | jq '.'

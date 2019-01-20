@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"log"
 
 	"github.com/mchmarny/myevents/pkg/clients"
 )
@@ -31,11 +30,11 @@ func main() {
 	flag.Parse()
 
 	if targetURL == "" {
-		log.Fatal("`url` required ")
+		panic("`url` required")
 	}
 
 	if message == "" {
-		log.Fatal("`message` required ")
+		panic("`message` required")
 	}
 
 	// context
@@ -44,11 +43,11 @@ func main() {
 	var err error
 	sender, err = clients.NewSender(targetURL)
 	if err != nil {
-		log.Fatalf("error while creating sender: %v", err)
+		panic("error while creating sender: " + err.Error())
 	}
 
-	if err = sender.SendMessages(ctx, "tech.knative.event.write", message); err != nil {
-		log.Fatalf("error while sending: %v", err)
+	if err = sender.SendMessages(ctx, "tech.knative.events.test", message); err != nil {
+		panic("error while sending: " + err.Error())
 	}
 
 }
