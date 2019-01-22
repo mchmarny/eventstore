@@ -15,6 +15,9 @@ spec:
             imagePullPolicy: Always
             env:
             - name: RELEASE
-              value: "v0.2.4"
+              value: "v0.2.5"
             - name: GCP_PROJECT_ID
-              value: "s9-demo"
+              valueFrom:
+                configMapKeyRef:
+                  name: global-config
+                  key: project
