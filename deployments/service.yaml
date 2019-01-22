@@ -17,7 +17,7 @@ spec:
             imagePullPolicy: Always
             env:
             - name: RELEASE
-              value: "v0.2.5"
+              value: "v0.2.6"
             - name: GCP_PROJECT_ID
               valueFrom:
                 configMapKeyRef:

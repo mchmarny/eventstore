@@ -53,6 +53,8 @@ Before we can deploy that service to Knative, we just need to update the `GCP_PR
       value: "enter your project ID here"
 ```
 
+> Note, if you want to be able to post to this service from external clients, remove the `serving.knative.dev/visibility: cluster-local` label in `deployments/service.yaml`
+
 
 ### Deploy Service
 
