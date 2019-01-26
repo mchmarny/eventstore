@@ -26,6 +26,11 @@ image:
 		--project ${GCP_PROJECT} \
 		--tag gcr.io/${GCP_PROJECT}/myevents:latest
 
+public-image:
+	gcloud builds submit \
+		--project knative-samples \
+		--tag gcr.io/knative-samples/myevents:latest
+
 docker:
 	docker build -t myevents .
 

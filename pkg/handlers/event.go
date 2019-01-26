@@ -34,8 +34,8 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var event map[string]string
-	ctx, err := ce.FromRequest(event, r)
+	var event map[string]interface{}
+	ctx, err := ce.FromRequest(&event, r)
 	if err != nil {
 		log.Printf("error parsing cloudevent: %v", err)
 		http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
@@ -45,7 +45,11 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Event Context: %v", ctx)
 	log.Printf("Raw Event Data: %v", event)
 
-	ctx.Extensions = map[string]interface{}{ "raw": event }
+	if ctx.Extensions == nil {
+		ctx.Extensions = map[string]interface{}{ "raw": event }
+	}else{
+		ctx.Extensions["raw"] = event
+	}
 
 	saveErr := stores.SaveEvent(r.Context(), ctx)
 	if saveErr != nil {
