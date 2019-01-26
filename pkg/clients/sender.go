@@ -1,35 +1,27 @@
 package clients
 
 import (
-	"bytes"
-	"fmt"
-	"time"
-	"net/url"
- 	"io/ioutil"
-	"encoding/json"
-    "net/http"
 	"context"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"time"
 
+	ce "github.com/knative/pkg/cloudevents"
 	"github.com/mchmarny/myevents/pkg/utils"
-	"github.com/cloudevents/sdk-go/v02"
+)
+
+const (
+	sourceURI = "https://github.com/mchmarny/myevents/client"
 )
 
 // NewSender creates a already preconfigured Sender
 func NewSender(targerURL string) (sender *Sender, err error) {
 
-	tu, te := url.Parse(targerURL)
-	if te != nil {
-		return nil, te
-	}
-
-	su, se := url.Parse("https://github.com/mchmarny/myevents")
-	if se != nil {
-		return nil, se
-	}
-
 	s := &Sender{
-		TargerURL: tu.String(),
-		SourceURL: su,
+		TargerURL: targerURL,
+		SourceURL: sourceURI,
 	}
 
 	return s, nil
@@ -39,81 +31,47 @@ func NewSender(targerURL string) (sender *Sender, err error) {
 // Sender sends messages
 type Sender struct {
 	TargerURL string
-	SourceURL *url.URL
+	SourceURL string
 }
 
 // SendMessages sends v02.Event based on the provided data
 func (s *Sender) SendMessages(ctx context.Context, eventType, text string) error {
 
-	now := time.Now().UTC()
-	event := &v02.Event{
-		SpecVersion: "0.2",
-		Type:        eventType,
-		Source:      *s.SourceURL,
-		ID:          utils.MakeUUID(),
-		Time: 		 &now,
-		ContentType: "text/plain",
-		Data: 		 text,
+	ex := ce.EventContext{
+		CloudEventsVersion: "0.2",
+		EventID:            utils.MakeUUID(),
+		EventTime:          time.Now().UTC(),
+		EventType:          eventType,
+		EventTypeVersion:   "v0.1",
+		ContentType:        "text/plain",
+		Source:             s.SourceURL,
 	}
 
-	return s.SendEvent(ctx, event)
-
-}
-
-
-// SendEvent sends a v2 cloud event
-func (s *Sender) SendEvent(ctx context.Context, event *v02.Event) error {
-	data, err := json.Marshal(event)
+	req, err := ce.Binary.NewRequest(s.TargerURL, text, ex)
 	if err != nil {
-		fmt.Printf("Error while marshaling event: %v", err)
-	}
-	return s.SendContent(ctx, data)
-}
-
-
-// SendContent sends the content
-func (s *Sender) SendContent(ctx context.Context, content []byte) error {
-
-	// request
-	req, err := http.NewRequest("POST", s.TargerURL, bytes.NewBuffer(content))
-	if err != nil {
+		log.Printf("Error creating new quest: %v", err)
 		return err
 	}
 
-	// update request
-	req.WithContext(ctx)
-	req.Header.Set("k-sender", "github.com/mchmarny/myevents")
-	req.Header.Set("Content-Type", "application/json")
+	log.Printf("Posting to %s: %v", s.TargerURL, text)
 
-	// client
 	client := &http.Client{}
-
-	// send
-    resp, err := client.Do(req)
-    if err != nil {
-        return err
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
 	}
-
-	// cleanup
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusAccepted &&
-	   resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Response Status: %s", resp.Status)
-	   }
+	if resp.StatusCode != http.StatusOK &&
+		resp.StatusCode != http.StatusAccepted {
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Printf("Error parsing body: %v", err)
-		return err
+		log.Printf("Response Status: %s", resp.Status)
+		body, _ := ioutil.ReadAll(resp.Body)
+		log.Printf("Response Body: %s", string(body))
+
+		return fmt.Errorf("Send returned an invalid status: %s", resp.Status)
 	}
 
-	fmt.Println(string(bodyBytes))
-
 	return nil
+
 }
-
-
-
-
-

@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/cloudevents/sdk-go/v02"
+	ce "github.com/knative/pkg/cloudevents"
 	"github.com/mchmarny/myevents/pkg/stores"
 )
 
@@ -34,25 +34,20 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	converter := v02.NewDefaultHTTPMarshaller()
-	event, err := converter.FromRequest(r)
+	var event map[string]string
+	ctx, err := ce.FromRequest(event, r)
 	if err != nil {
 		log.Printf("error parsing cloudevent: %v", err)
 		http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
 			http.StatusBadRequest)
 		return
 	}
-	log.Printf("Raw Event: %v", event)
+	log.Printf("Event Context: %v", ctx)
+	log.Printf("Raw Event Data: %v", event)
 
+	ctx.Extensions = map[string]interface{}{ "raw": event }
 
-	eventData, ok := event.Get("data")
-	if !ok {
-		http.Error(w, "Error, not a cloud event data", http.StatusBadRequest)
-		return
-	}
-	log.Printf("Event Data: %v", eventData)
-
-	saveErr := stores.SaveEvent(r.Context(), eventData)
+	saveErr := stores.SaveEvent(r.Context(), ctx)
 	if saveErr != nil {
 		log.Printf("error on event save: %v", saveErr)
 		http.Error(w, "Error on event save", http.StatusBadRequest)
