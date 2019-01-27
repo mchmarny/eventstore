@@ -14,7 +14,7 @@ service:
 	go build ./cmd/service/
 
 run:
-	./service
+	go run ./cmd.service/*.go
 
 deps:
 	go mod tidy
@@ -25,14 +25,6 @@ image:
 	gcloud builds submit \
 		--project ${GCP_PROJECT} \
 		--tag gcr.io/${GCP_PROJECT}/myevents:latest
-
-public-image:
-	gcloud builds submit \
-		--project knative-samples \
-		--tag gcr.io/knative-samples/myevents:latest
-
-docker:
-	docker build -t myevents .
 
 # DEPLOYMENT
 
@@ -45,24 +37,6 @@ nodeployment:
 # DEMO
 
 event:
+	# TARGET_URL=https://events.default.knative.tech/
 	curl -H "Content-Type: application/json" \
-		 -X POST --data "{ \
-			\"specversion\": \"0.2\", \
-			\"type\": \"tech.knative.event.write\", \
-			\"source\": \"https://knative.tech/test\", \
-			\"id\": \"id-0000-1111-2222-3333-4444\", \
-			\"time\": \"2019-01-11T17:31:00Z\", \
-			\"contenttype\": \"text/plain\", \
-			\"data\": \"My message content\" \
-		}" \
-		"http://localhost:8080/" \
-		| jq '.'
-
-client:
-	go build ./cmd/client/
-
-client-event:
-	./client --message "Test message" --url "http://events.default.knative.tech/" | jq '.'
-
-client-event-local:
-	./client --message "Test message" --url "http://localhost:8080/" | jq '.'
+		 -X POST -d @test-event.json http://localhost:8080/ | jq '.'

@@ -2,10 +2,9 @@ package stores
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"context"
-
+	"fmt"
 	"cloud.google.com/go/firestore"
 
 	"github.com/mchmarny/gauther/utils"
@@ -42,13 +41,13 @@ func InitDataStore() {
 
 
 // SaveEvent saves passed event
-func SaveEvent(ctx context.Context, data interface{}) error {
+func SaveEvent(ctx context.Context, id string, data map[string]interface{}) error {
 
-	if data == nil {
-		return errors.New("Nil data")
+	if id == "" {
+		return errors.New("Nil event ID")
 	}
 
-	_, err := coll.NewDoc().Set(ctx, data)
+	_, err := coll.Doc(id).Set(ctx, data)
 	if err != nil {
 		return fmt.Errorf("Error on save: %v", err)
 	}

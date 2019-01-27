@@ -1,0 +1,9 @@
+{
+    "specversion": "0.2",
+    "type": "tech.knative.demo.kapi.submit",
+    "source": "https://myevents.demo.knative.tech/test",
+    "id": "id-79126d8f-227c-11e9-8140-0a580a1401a0",
+    "time": "2019-01-27T21:42:41.404877035Z",
+    "contenttype": "text/plain",
+    "data": "aapl"
+}
