@@ -37,6 +37,7 @@ nodeployment:
 # DEMO
 
 event:
-	# TARGET_URL=https://events.default.knative.tech/
+	# https://events.default.knative.tech/
+	# http://localhost:8080/
 	curl -H "Content-Type: application/json" \
-		 -X POST -d @test-event.json http://localhost:8080/ | jq '.'
+		 -X POST -d @test-event.json https://events.demo.knative.tech/ | jq '.'
