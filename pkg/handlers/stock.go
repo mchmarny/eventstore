@@ -14,6 +14,8 @@ import (
 // StockHandler submitted messages
 func StockHandler(ctx context.Context, e *common.SimpleStock) error {
 
+	log.Println("Handling stock...")
+
 	ec := cloudevents.FromContext(ctx)
 	if ec == nil {
 		log.Printf("No Cloud Event Context found")
