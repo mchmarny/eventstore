@@ -23,6 +23,11 @@ func main() {
 		log.Fatalf("Error creating handler: %v", err)
 	}
 
+	err = m.Handle("io.redis.queue", handlers.CloudEventHandler)
+	if err != nil {
+		log.Fatalf("Error creating handler: %v", err)
+	}
+
 	// Server configured
 	port := utils.MustGetEnv("PORT", "8080")
 
