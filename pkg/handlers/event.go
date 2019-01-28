@@ -1,13 +1,14 @@
 package handlers
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
-	"net/http"
+	"context"
+	"errors"
 
-	"github.com/cloudevents/sdk-go/v02"
 	"github.com/mchmarny/myevents/pkg/stores"
+	"github.com/mchmarny/kapi/common"
+	"github.com/knative/pkg/cloudevents"
+
 )
 
 const (
@@ -15,58 +16,30 @@ const (
 )
 
 // CloudEventHandler submitted messages
-func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
+func CloudEventHandler(ctx context.Context, e *common.SimpleStock) error {
 
-	w.Header().Set("Content-Type", "application/json")
-
-	// check method
-	if r.Method != http.MethodPost {
-		log.Printf("wring method: %s", r.Method)
-		http.Error(w, "Invalid method. Only POST supported", http.StatusMethodNotAllowed)
-		return
+	ec := cloudevents.FromContext(ctx)
+	if ec != nil {
+		log.Printf("Received Cloud Event Context as: %+v", *ec)
+	} else {
+		log.Printf("No Cloud Event Context found")
 	}
 
-	m := v02.NewDefaultHTTPMarshaller()
-	e, err := m.FromRequest(r)
-	if err != nil {
-		log.Printf("error parsing cloudevent: %v", err)
-		http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
-			http.StatusBadRequest)
-		return
+	log.Printf("Stock %v", e)
+
+	if e.ID == "" {
+		log.Println("unable to parse event ID")
+		return errors.New("Invalid event format")
 	}
 
-	log.Printf("Raw Event: %v", e)
-	eventID, ok := e.GetString("id")
-	if !ok {
-		log.Println("nil event id")
-		http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
-			http.StatusBadRequest)
-		return
-	}
 
-	// log.Printf("Inner event v0.2: %v", data)
-	// e2 := data.(map[string]interface{})
-	// e2ID := e2["id"]
-	// if e2ID == nil {
-	// 	log.Println("nil event ID [id]")
-	// 	http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
-	// 		http.StatusBadRequest)
-	// 	return
-	// }
-
-	// eventID := e2ID.(string)
-
-	saveErr := stores.SaveEvent(r.Context(), eventID, e)
+	saveErr := stores.SaveEvent(ctx, e.ID, e)
 	if saveErr != nil {
 		log.Printf("error on event save: %v", saveErr)
-		http.Error(w, "Error on event save", http.StatusBadRequest)
-		return
+		return errors.New( "Error on event save")
 	}
 
-	log.Printf("Event saved: %v", e2ID)
-
-	// response with the parsed payload data
-	w.WriteHeader(http.StatusAccepted)
-	json.NewEncoder(w).Encode(e2)
+	log.Printf("Event saved: %v", e.ID)
+	return nil
 
 }

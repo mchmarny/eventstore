@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
 
 	"github.com/mchmarny/myevents/pkg/handlers"
 	"github.com/mchmarny/myevents/pkg/utils"
 	"github.com/mchmarny/myevents/pkg/stores"
+	"github.com/knative/pkg/cloudevents"
 )
 
 func main() {
@@ -17,24 +17,16 @@ func main() {
 	stores.InitDataStore()
 
 	// Event Handlers
-	http.HandleFunc("/", withLog(handlers.CloudEventHandler))
+	m := cloudevents.NewMux()
+	err := m.Handle("tech.knative.demo.kapi", handlers.CloudEventHandler)
+	if err != nil {
+		log.Fatalf("Error creating handler: %v", err)
+	}
 
 	// Server configured
 	port := utils.MustGetEnv("PORT", "8080")
 
 	log.Printf("Server starting on port %s \n", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), m))
 
-}
-
-func withLog(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		reqDump, err := httputil.DumpRequest(r, true)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(string(reqDump))
-		}
-		next.ServeHTTP(w, r)
-	}
 }
