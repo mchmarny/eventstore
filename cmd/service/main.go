@@ -16,14 +16,11 @@ func main() {
 	// Init db
 	stores.InitDataStore()
 
-	// Event Handlers
+	// mux
 	m := cloudevents.NewMux()
-	err := m.Handle("tech.knative.demo.kapi.stock", handlers.StockHandler)
-	if err != nil {
-		log.Fatalf("Error creating handler: %v", err)
-	}
 
-	err = m.Handle("io.redis.queue", handlers.StockHandler)
+	// stock handler
+	err := m.Handle("tech.knative.demo.kapi.stock", handlers.StockHandler)
 	if err != nil {
 		log.Fatalf("Error creating handler: %v", err)
 	}
