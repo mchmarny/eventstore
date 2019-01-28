@@ -41,14 +41,18 @@ func InitDataStore() {
 
 
 // SaveEvent saves passed event
-func SaveEvent(ctx context.Context, id string, data map[string]interface{}) error {
+func SaveEvent(ctx context.Context, id string, data interface{}) error {
+
+	log.Printf("Saving event id:%s - %v", id, data)
 
 	if id == "" {
+		log.Println("nil id on event save")
 		return errors.New("Nil event ID")
 	}
 
 	_, err := coll.Doc(id).Set(ctx, data)
 	if err != nil {
+		log.Printf("error on save: %v", err)
 		return fmt.Errorf("Error on save: %v", err)
 	}
 

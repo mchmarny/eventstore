@@ -36,30 +36,34 @@ func CloudEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("Raw Event: %v", e)
-	data, ok := e.Get("data")
+	eventID, ok := e.GetString("id")
 	if !ok {
-		log.Println("nil event data [data]")
+		log.Println("nil event id")
 		http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
 			http.StatusBadRequest)
 		return
 	}
 
-	log.Printf("Inner event v0.2: %v", data)
-	e2 := data.(map[string]interface{})
-	e2ID := e2["id"]
-	if e2ID == nil {
-		log.Println("nil event ID [id]")
-		http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
-			http.StatusBadRequest)
-		return
-	}
+	// log.Printf("Inner event v0.2: %v", data)
+	// e2 := data.(map[string]interface{})
+	// e2ID := e2["id"]
+	// if e2ID == nil {
+	// 	log.Println("nil event ID [id]")
+	// 	http.Error(w, fmt.Sprintf("Invalid Cloud Event (%v)", err),
+	// 		http.StatusBadRequest)
+	// 	return
+	// }
 
-	saveErr := stores.SaveEvent(r.Context(), e2ID.(string), e2)
+	// eventID := e2ID.(string)
+
+	saveErr := stores.SaveEvent(r.Context(), eventID, e)
 	if saveErr != nil {
 		log.Printf("error on event save: %v", saveErr)
 		http.Error(w, "Error on event save", http.StatusBadRequest)
 		return
 	}
+
+	log.Printf("Event saved: %v", e2ID)
 
 	// response with the parsed payload data
 	w.WriteHeader(http.StatusAccepted)
