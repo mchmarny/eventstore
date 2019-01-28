@@ -11,21 +11,15 @@ import (
 
 )
 
-const (
-	knownPublisherTokenName = "token"
-)
-
 // StockHandler submitted messages
 func StockHandler(ctx context.Context, e *common.SimpleStock) error {
 
 	ec := cloudevents.FromContext(ctx)
-	if ec != nil {
-		log.Printf("Received Cloud Event Context as: %+v", *ec)
-	} else {
+	if ec == nil {
 		log.Printf("No Cloud Event Context found")
 	}
 
-	log.Printf("Stock %v", e)
+	log.Printf("Stock: %+v", *ec)
 
 	if e.ID == "" {
 		log.Println("unable to parse event ID")

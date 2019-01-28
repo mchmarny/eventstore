@@ -6,9 +6,7 @@ import (
 	"context"
 	"fmt"
 	"cloud.google.com/go/firestore"
-
-	"github.com/mchmarny/gauther/utils"
-
+	"github.com/mchmarny/myevents/pkg/utils"
 
 )
 
