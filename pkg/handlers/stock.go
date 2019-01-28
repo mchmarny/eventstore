@@ -15,8 +15,8 @@ const (
 	knownPublisherTokenName = "token"
 )
 
-// CloudEventHandler submitted messages
-func CloudEventHandler(ctx context.Context, e *common.SimpleStock) error {
+// StockHandler submitted messages
+func StockHandler(ctx context.Context, e *common.SimpleStock) error {
 
 	ec := cloudevents.FromContext(ctx)
 	if ec != nil {
