@@ -18,7 +18,7 @@ func main() {
 
 	// Event Handlers
 	m := cloudevents.NewMux()
-	err := m.Handle("tech.knative.demo.kapi", handlers.CloudEventHandler)
+	err := m.Handle("tech.knative.demo.kapi.stock", handlers.CloudEventHandler)
 	if err != nil {
 		log.Fatalf("Error creating handler: %v", err)
 	}
