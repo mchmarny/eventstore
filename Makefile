@@ -1,43 +1,42 @@
-
 # Assumes following env vars set
 #  GCP_PROJECT - ID of your project
-#  CLUSTER_ZONE - GCP Zone, ideally same as your Knative k8s cluster
 
-
-.PHONY: app client service
+.PHONY: run mod image service event
 
 # DEV
-test:
-	go test ./... -v
-
-service:
-	go build ./cmd/service/
 
 run:
-	go run ./cmd.service/*.go
-
-deps:
-	go mod tidy
+	go run *.go -v
 
 # BUILD
 
-image:
+mod:
+	go mod tidy
+	go mod vendor
+
+image: mod
 	gcloud builds submit \
 		--project ${GCP_PROJECT} \
-		--tag gcr.io/${GCP_PROJECT}/myevents:latest
+		--tag gcr.io/${GCP_PROJECT}/myevents:0.1.2
+
+sample-image: mod
+	gcloud builds submit \
+		--project knative-samples \
+		--tag gcr.io/knative-samples/myevents:0.1.2
 
 # DEPLOYMENT
 
-deployment:
-	kubectl apply -f deployments/service.yaml
-
-nodeployment:
-	kubectl delete -f deployments/service.yaml
+service:
+	kubectl apply -f config/service.yaml -n demo
 
 # DEMO
 
 event:
-	# https://events.default.knative.tech/
-	# http://localhost:8080/
 	curl -H "Content-Type: application/json" \
-		 -X POST -d @test-event.json https://events.demo.knative.tech/ | jq '.'
+		 -H "CE-Specversion: 0.2" \
+		 -H "CE-ID: 1111-2222-3333-4444-5555-6666" \
+		 -H "CE-Type: com.twitter" \
+		 -H "CE-Time: 2018-04-05T03:56:24Z" \
+		 -H "CE-Source: https://twitter.com/api/1" \
+		 -X POST -d @test-event.json http://localhost:8080/
+
