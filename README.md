@@ -11,14 +11,14 @@ Simple Knative service persisting Cloud Events to Cloud Firestore collection. Us
 
 ## Deployment
 
-Firestore client still requires GCP Project ID to create a client. So, before we can deploy this service to Knative, you will need to update the `GCP_PROJECT_ID` in Now in the `config/service.yaml` file.
+Firestore client still requires GCP Project ID to create a client. So, before we can deploy this service to Knative, you will need to update the `GCP_PROJECT_ID` in Now in the `service.yaml` file.
 
 ```yaml
     - name: GCP_PROJECT_ID
       value: "enter your project ID here"
 ```
 
-Once done updating our service manifest (`config/service.yaml`) you are ready to deploy it.
+Once done updating our service manifest (`service.yaml`) you are ready to deploy it.
 
 ```shell
 kubectl apply -f deployments/service.yaml -n demo

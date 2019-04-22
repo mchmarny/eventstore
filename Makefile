@@ -17,17 +17,17 @@ mod:
 image: mod
 	gcloud builds submit \
 		--project ${GCP_PROJECT} \
-		--tag gcr.io/${GCP_PROJECT}/myevents:0.1.2
+		--tag gcr.io/${GCP_PROJECT}/myevents:0.1.3
 
 sample-image: mod
 	gcloud builds submit \
 		--project knative-samples \
-		--tag gcr.io/knative-samples/myevents:0.1.2
+		--tag gcr.io/knative-samples/myevents:0.1.3
 
 # DEPLOYMENT
 
 service:
-	kubectl apply -f config/service.yaml -n demo
+	kubectl apply -f service.yaml -n demo
 
 # DEMO
 

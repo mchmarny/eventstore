@@ -20,7 +20,7 @@ type eventData struct {
 
 type eventReceiver struct{}
 
-func (r *eventReceiver) Receive(ctx context.Context, event ce.Event, _ *ce.EventResponse) error {
+func (r *eventReceiver) Receive(ctx context.Context, event ce.Event, resp *ce.EventResponse) error {
 
 	log.Printf("Raw Event: %v", event)
 	// event.DataAs(&data); err != nil {
@@ -40,8 +40,17 @@ func (r *eventReceiver) Receive(ctx context.Context, event ce.Event, _ *ce.Event
 		return err
 	}
 
-	d := &eventData{Context: event.Context.AsV02(), Data: p}
+	ed := &eventData{Context: event.Context.AsV02(), Data: p}
 
-	return saveData(ctx, eid, d)
+	re := &ce.EventResponse{
+		Status:  200,
+		Event:   &event,
+		Reason:  "Stored",
+		Context: event.Context,
+	}
+
+	resp = re
+
+	return saveData(ctx, eid, ed)
 
 }
