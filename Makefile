@@ -17,12 +17,12 @@ mod:
 image: mod
 	gcloud builds submit \
 		--project ${GCP_PROJECT} \
-		--tag gcr.io/${GCP_PROJECT}/myevents:0.1.3
+		--tag gcr.io/${GCP_PROJECT}/myevents:0.1.4
 
 sample-image: mod
 	gcloud builds submit \
 		--project knative-samples \
-		--tag gcr.io/knative-samples/myevents:0.1.3
+		--tag gcr.io/knative-samples/myevents:0.1.4
 
 # DEPLOYMENT
 
