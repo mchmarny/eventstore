@@ -13,12 +13,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     -mod vendor \
     -o eventstore
 
-# CERTS
-FROM alpine:latest as certs
-RUN apk --update add ca-certificates
-
 # RUN
-FROM scratch
+FROM gcr.io/distroless/static
 COPY --from=builder /src/eventstore .
-COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 ENTRYPOINT ["/eventstore"]
