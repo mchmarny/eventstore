@@ -7,6 +7,9 @@ import (
 	"log"
 
 	"cloud.google.com/go/firestore"
+	prj "github.com/mchmarny/gcputil/project"
+	ev "github.com/mchmarny/gcputil/env"
+
 )
 
 const (
@@ -19,8 +22,8 @@ var (
 
 func init() {
 
-	projectID := mustGetEnv("GCP_PROJECT_ID", "")
-	collName := mustGetEnv("COLLECTION_NAME", defaultCollectionName)
+	projectID := prj.GetIDOrFail()
+	collName := ev.MustGetEnvVar("FIRESTORE_COLL_NAME", defaultCollectionName)
 
 	log.Printf("Initiating firestore client for %s collection in %s project",
 		collName, projectID)
